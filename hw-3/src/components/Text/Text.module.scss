@@ -1,0 +1,66 @@
+@import '../../styles/variable';
+
+.text {
+  font-family: 'Roboto', sans-serif;
+  color: inherit;
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  line-height: $line-height-normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+   &.text_view_title {
+    font-size: $font-size-4xl;
+    font-weight: $font-weight-bold;
+    line-height: $line-height-tight;
+  }
+
+  &.text_view_button {
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &.text_view_p-20 {
+    font-size: $font-size-xl;
+  }
+
+  &.text_view_p-18 {
+    font-size: $font-size-lg;
+  }
+
+  &.text_view_p-16 {
+    font-size: $font-size-base;
+  }
+
+  &.text_view_p-14 {
+    font-size: $font-size-sm;
+  }
+
+  &.text_weight_normal {
+    font-weight: $font-weight-normal;
+  }
+
+  &.text_weight_medium {
+    font-weight: $font-weight-medium;
+  }
+
+  &.text_weight_bold {
+    font-weight: $font-weight-bold;
+  }
+
+  &.text_color_primary {
+    color: $color-primary;
+  }
+
+  &.text_color_secondary {
+    color: $color-secondary;
+  }
+
+  &.text_color_accent {
+    color: $color-primary-hover;
+  }
+}
