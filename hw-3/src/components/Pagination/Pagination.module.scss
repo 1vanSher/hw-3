@@ -1,0 +1,135 @@
+@import '../../styles/variable';
+
+.pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-6;
+  margin-top: $spacing-8;
+  padding: $spacing-6 0;
+}
+
+.info {
+  color: $color-text-muted;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-normal;
+}
+
+.pages {
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pageButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: $spacing-10;
+  height: $spacing-10;
+  padding: 0 $spacing-4;
+  border: none;
+  background: #FAFAFA;
+  color: $color-text;
+  cursor: pointer;
+  transition: $transition-colors;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  line-height: $line-height-normal;
+
+  &:hover:not(:disabled) {
+    border-color: $color-primary;
+    background: $color-gray-100;
+    color: $color-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+
+  &.active {
+    background: $color-primary;
+    color: #ffffff;
+    border-color: $color-primary;   
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: $color-gray-100;
+    border-color: $color-gray-200;
+    color: $color-text-muted;
+  }
+}
+
+.pageNavigation {
+  display: flex;
+  gap: $spacing-6;
+  align-items: center;
+  background-color: #FAFAFA;
+  border: none;
+  stroke: #000000;
+
+    &:hover {
+      stroke: $color-primary;
+    }
+
+    &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: $color-gray-100;
+    border-color: $color-gray-200;
+    color: $color-text-muted;
+  }
+}
+
+.ellipsis {
+  padding: 0 $spacing-3;
+  color: $color-text-muted;
+  font-weight: $font-weight-medium;
+  font-size: $font-size-sm;
+}
+
+@media (max-width: $breakpoint-tablet) {
+  .pagination {
+    gap: $spacing-4;
+    margin-top: $spacing-6;
+    padding: $spacing-4 0;
+  }
+
+  .pages {
+    gap: $spacing-1;
+  }
+
+  .pageButton {
+    min-width: $spacing-8;
+    height: $spacing-8;
+    padding: 0 $spacing-3;
+    font-size: $font-size-xs;
+  }
+
+  .info {
+    font-size: $font-size-xs;
+    text-align: center;
+  }
+}
+
+@media (max-width: $breakpoint-mobile) {
+  .pagination {
+    gap: $spacing-3;
+  }
+
+  .pageButton {
+    min-width: $spacing-6;
+    height: $spacing-6;
+    padding: 0 $spacing-2;
+  }
+
+  .ellipsis {
+    padding: 0 $spacing-2;
+    font-size: $font-size-xs;
+  }
+}

@@ -1,0 +1,144 @@
+@import '../../styles/variable';
+
+.header {
+  font-family: 'Roboto', sans-serif;
+  position: sticky;
+  top: 0;
+  margin: 0 auto;
+  z-index: $z-index-sticky;
+  background-color: $color-background;
+  border-bottom: 1px solid $color-gray-200;
+  box-shadow: $shadow-sm;
+  padding: $spacing-4 0;
+}
+
+.container {
+  max-width: $breakpoint-desktop;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $spacing-6;
+
+    @media (max-width: $breakpoint-tablet) {
+    padding: 0 $spacing-4;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    padding: 0 $spacing-3;
+    flex-direction: column;
+    gap: $spacing-4;
+  }
+}
+
+.logo {
+  color: $color-primary;
+  text-decoration: none;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-2xl;
+  line-height: $line-height-tight;
+  transition: $transition-colors;
+
+  &:hover {
+    color: $color-primary-hover;
+    transform: scale(1.02);
+  }
+
+  @media (max-width: $breakpoint-tablet) {
+    font-size: $font-size-xl;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: $font-size-lg;
+    text-align: center;
+  }
+}
+
+.nav {
+  @media (max-width: $breakpoint-tablet) {
+    width: 100%;
+  }
+}
+
+.navList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: $spacing-12;
+  align-items: center;
+
+  @media (max-width: $breakpoint-tablet) {
+    gap: $spacing-4;
+    justify-content: center;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    flex-direction: column;
+    gap: $spacing-3;
+    width: 100%;
+  }
+}
+
+.logoList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: $spacing-3;
+  align-items: center;
+
+ 
+  @media (max-width: $breakpoint-tablet) {
+    gap: $spacing-4;
+    justify-content: center;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    flex-direction: column;
+    gap: $spacing-3;
+    width: 100%;
+  }
+}
+
+.link {
+  color: $color-black;
+  text-decoration: none;
+  font-weight: $font-weight-medium;
+  font-size: $font-size-base;
+  padding: $spacing-2 $spacing-3;
+  transition: $transition-colors;
+  display: block;
+  text-align: center;
+
+    &.active {
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+  }
+  &:hover {
+    color: $color-primary;
+    transform: translateY(-1px);
+    padding-bottom: -$spacing-8;
+  }
+
+  &:global(.active) {
+    color: $color-primary;
+    background-color: $color-gray-100;
+    font-weight: $font-weight-semibold;
+  }
+
+  @media (max-width: $breakpoint-tablet) {
+    padding: $spacing-2 $spacing-2;
+    font-size: $font-size-sm;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    width: 100%;
+    padding: $spacing-3;
+    border: 1px solid $color-gray-200;
+    
+    &:hover {
+      border-color: $color-primary;
+    }
+  }
+}

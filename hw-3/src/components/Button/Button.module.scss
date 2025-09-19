@@ -1,0 +1,36 @@
+.button {
+    height: 52px;
+    padding: 0 20px;
+    border: none;
+    background-color: #518581;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s ease;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.load--s.button__loader {
+  border: 2px solid #ffffff;
+  border-top-color: transparent;
+}
+.button:hover:not(.button--disabled):not(.button--loading) {
+  background-color: #86aaa7;
+}
+
+.button--loading {
+  cursor: not-allowed;
+  background-color: #518581 !important;
+}
+
+.button:disabled,
+.button--disabled {
+  background-color: #d9d9d9 ;
+  cursor: not-allowed;
+}
+.button.button--loading.button--disabled {
+  background-color: #d9d9d9 !important;
+  cursor: not-allowed;
+}
