@@ -1,20 +1,27 @@
+import { observer } from 'mobx-react-lite';
+import { useStore } from '@/stores/StoreContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { ProductCardProps } from '@/types/product';
 import { Text } from '@/components/Text';
 import Card from '@/components/Card';
 
-export const ProductCard = ({ product }: ProductCardProps) => {
+export const ProductCard = observer(({ product }: ProductCardProps) => {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
+  const { cartStore } = useStore();
 
-  const handleClick = () => {
+  const handleImageClick = () => {
+    navigate(`/products/${product.documentId}`);
+  };
+
+  const handleTitleClick = () => {
     navigate(`/products/${product.documentId}`);
   };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('Add to cart:', product);
+    cartStore.addItem(product);
   };
 
   const handleImageError = () => {
@@ -29,10 +36,14 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     ? Math.round(product.price * (1 - product.discountPercent / 100))
     : product.price;
 
+  const isInCart = cartStore.isInCart(product.documentId);
+
   return (
     <Card
       image={imageUrl}
-      onImageError={handleImageError} 
+      onImageError={handleImageError}
+      onImageClick={handleImageClick} // Добавляем обработчик клика на изображение
+      onTitleClick={handleTitleClick} // Добавляем обработчик клика на заголовок
       captionSlot={
         product.productCategory && (
           <Text view="p-14" color="secondary" weight="medium">
@@ -68,31 +79,31 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       actionSlot={
         <button
           style={{
-            background: 'var(--color-primary)',
+            background: isInCart ? 'var(--color-success)' : 'var(--color-primary)',
             color: 'var(--color-white)',
             border: 'none',
             borderRadius: '8px',
             padding: '8px 16px',
             fontSize: '14px',
             fontWeight: '500',
-            cursor: 'pointer',
+            cursor: product.isInStock ? 'pointer' : 'not-allowed',
+            opacity: product.isInStock ? 1 : 0.6,
             transition: 'all 0.3s ease'
           }}
           onClick={handleAddToCart}
           disabled={!product.isInStock}
           onMouseOver={(e) => {
-            if (!product.isInStock) return;
+            if (!product.isInStock || isInCart) return;
             e.currentTarget.style.background = 'var(--color-primary-hover)';
           }}
           onMouseOut={(e) => {
-            if (!product.isInStock) return;
+            if (!product.isInStock || isInCart) return;
             e.currentTarget.style.background = 'var(--color-primary)';
           }}
         >
-          В корзину
+          {isInCart ? 'В корзине' : 'В корзину'}
         </button>
       }
-      onClick={handleClick}
     />
   );
-};
+});

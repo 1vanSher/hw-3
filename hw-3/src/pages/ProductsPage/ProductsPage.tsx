@@ -1,66 +1,35 @@
-import { useState, useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
 import { ProductCard } from '@/components/ProductCard';
 import { Pagination } from '@/components/Pagination';
 import { SearchProducts } from '@/components/SearchProducts';
-import { productsApi } from '@/api/productsApi';
-import { Product, Pagination as PaginationType } from '@/types/product';
 import { Text } from '@/components/Text';
+import { useStore } from '@/stores/StoreContext';
 import styles from './ProductsPage.module.scss';
 
-export const ProductsPage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState<PaginationType>({
-    page: 1,
-    pageSize: 9,
-    pageCount: 1,
-    total: 0
-  });
-  const [searchQuery, setSearchQuery] = useState('');
+export const ProductsPage = observer(() => {
+  const { productsStore } = useStore();
+  const { products, loading, error, pagination, searchQuery } = productsStore;
 
-  const fetchProducts = async (page: number = 1, query: string = '') => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      let response;
-      
-      if (query.trim()) {
-        response = await productsApi.searchProducts(query.trim(), page, pagination.pageSize);
-      } else {
-        response = await productsApi.getProductsPaginated(page, pagination.pageSize);
-      }
-      
-      setProducts(response.data);
-      setPagination(response.meta.pagination);
-    } catch (err) {
-      setError('Ошибка при загрузке товаров');
-      console.error('Error fetching products:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Загрузка продуктов при монтировании компонента
   useEffect(() => {
-    fetchProducts(1);
+    productsStore.fetchProducts(1);
   }, []);
 
   const handlePageChange = (newPage: number) => {
-    fetchProducts(newPage, searchQuery);
+    productsStore.fetchProducts(newPage, searchQuery);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    fetchProducts(1, query);
+    productsStore.fetchProducts(1, query);
   };
 
   const handleClearSearch = () => {
-    setSearchQuery('');
-    fetchProducts(1);
+    productsStore.clearSearch();
   };
 
+  // Состояние загрузки
   if (loading && products.length === 0) {
     return (
       <div className={styles.loading}>
@@ -69,12 +38,13 @@ export const ProductsPage = () => {
     );
   }
 
+  // Состояние ошибки
   if (error) {
     return (
       <div className={styles.error}>
         <Text view="p-20" color="accent">{error}</Text>
         <button 
-          onClick={() => fetchProducts(1, searchQuery)}
+          onClick={() => productsStore.fetchProducts(1, searchQuery)}
           className={styles.retryButton}
         >
           Попробовать снова
@@ -85,6 +55,7 @@ export const ProductsPage = () => {
 
   return (
     <div className={styles.container}>
+      {/* Заголовок страницы */}
       <div className={styles.header}>
         <Text view="title" tag="h1">Products</Text>
         <Text view="p-16" color="secondary" maxLines={2}>
@@ -92,11 +63,14 @@ export const ProductsPage = () => {
           to see our old products please enter the name of the item
         </Text>
       </div>
+
+      {/* Поиск товаров */}
       <div className={styles.searchSection}>
         <SearchProducts 
           onSearch={handleSearch}
           placeholder="Search product"
           buttonText="Find now"
+          initialValue={searchQuery}
         />
         {searchQuery && (
           <button 
@@ -107,13 +81,17 @@ export const ProductsPage = () => {
           </button>
         )}
       </div>
+
+      {/* Общее количество товаров */}
       <div className={styles.productsTotal}>
-        <Text >
+        <Text>
           {searchQuery ? 'Found products' : 'Total products'} 
           <span className={styles.totalCount}> {pagination.total}</span>
           {searchQuery && ` for "${searchQuery}"`}
         </Text>
       </div>
+
+      {/* Сетка товаров */}
       <div className={styles.productsGrid}>
         {products.length > 0 ? (
           products.map((product) => (
@@ -138,6 +116,8 @@ export const ProductsPage = () => {
           </div>
         )}
       </div>
+
+      {/* Пагинация */}
       {pagination.pageCount > 1 && (
         <div className={styles.paginationContainer}>
           <Pagination 
@@ -148,6 +128,6 @@ export const ProductsPage = () => {
       )}
     </div>
   );
-};
+});
 
 export default ProductsPage;

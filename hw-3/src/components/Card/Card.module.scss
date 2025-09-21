@@ -5,6 +5,10 @@
   flex-direction: column;
   background: $color-white;
   overflow: hidden;
+  width: 360px;
+  &:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  }
 }
 
 .card_clickable {
@@ -12,9 +16,7 @@
   width: 360px;
   max-height: 650px;
   
-  &:hover {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-  }
+  
 }
 
 .card__image_container {
@@ -28,6 +30,7 @@
   height: 360px;
   object-fit: cover;
   display: block;
+  cursor: pointer;
 }
 
 .card__content {

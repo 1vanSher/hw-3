@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/Button';
 import styles from './SearchProducts.module.scss';
 
@@ -11,6 +11,8 @@ export type SearchProductsProps = {
   buttonText?: string;
   /** Дополнительный класс */
   className?: string;
+  /** Начальное значение поиска */
+  initialValue?: string;
 };
 
 export const SearchProducts: React.FC<SearchProductsProps> = ({
@@ -18,8 +20,14 @@ export const SearchProducts: React.FC<SearchProductsProps> = ({
   placeholder = 'Search product',
   buttonText = 'Find now',
   className,
+  initialValue = ''
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialValue);
+
+  // Синхронизация с внешним initialValue
+  useEffect(() => {
+    setSearchQuery(initialValue);
+  }, [initialValue]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
