@@ -7,7 +7,6 @@ export const CartIcon = observer(() => {
   const { cartStore } = useStore();
   const cartRef = useRef<HTMLDivElement>(null);
   
-  // Закрытие корзины при клике вне области
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (cartRef.current && !cartRef.current.contains(event.target as Node)) {

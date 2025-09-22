@@ -23,18 +23,10 @@ export class ProductsStore {
 
   constructor() {
     makeAutoObservable(this);
-    
-    // Восстановление состояния из URL при инициализации
     if (typeof window !== 'undefined') {
       this.restoreFromUrl();
     }
   }
-
-  // ========== URL MANAGEMENT ========== //
-
-  /**
-   * Восстановление состояния из URL параметров
-   */
   restoreFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     const page = urlParams.get('page');
@@ -48,10 +40,6 @@ export class ProductsStore {
       this.searchQuery = query;
     }
   }
-
-  /**
-   * Обновление URL с текущими параметрами
-   */
   updateUrl() {
     if (typeof window === 'undefined') return;
     
@@ -68,12 +56,6 @@ export class ProductsStore {
     const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
     window.history.replaceState(null, '', newUrl);
   }
-
-  // ========== PRODUCTS PAGE METHODS ========== //
-
-  /**
-   * Загрузка товаров с пагинацией и поиском
-   */
   async fetchProducts(page: number = 1, query: string = '') {
     try {
       this.setLoading(true);
@@ -104,22 +86,12 @@ export class ProductsStore {
       });
     }
   }
-
-  /**
-   * Очистка поиска
-   */
   clearSearch() {
     this.searchQuery = '';
     this.pagination.page = 1;
     this.fetchProducts(1);
     this.updateUrl();
   }
-
-  // ========== PRODUCT PAGE METHODS ========== //
-
-  /**
-   * Загрузка конкретного товара по ID
-   */
   async fetchProductById(id: string) {
     try {
       this.setProductLoading(true);
@@ -145,10 +117,6 @@ export class ProductsStore {
       });
     }
   }
-
-  /**
-   * Загрузка похожих товаров
-   */
   private async fetchSimilarProducts(product: Product) {
     try {
       const allProductsResponse = await productsApi.getProducts();
@@ -162,7 +130,6 @@ export class ProductsStore {
       });
     } catch (err) {
       console.error('Error fetching similar products:', err);
-      // Не устанавливаем ошибку, так как это дополнительная информация
     }
   }
 
@@ -173,13 +140,10 @@ export class ProductsStore {
     let response;
     
     if (categoryIds.length > 0) {
-      // Фильтрация по категориям
       response = await productsApi.getProductsByCategoryIds(categoryIds, page, 9);
     } else if (searchQuery) {
-      // Поиск
       response = await productsApi.searchProducts(searchQuery, page, 9);
     } else {
-      // Все товары
       response = await productsApi.getProductsPaginated(page, 9);
     }
     
@@ -192,17 +156,11 @@ export class ProductsStore {
     this.loading = false;
   }
 };
-
-  /**
-   * Сброс состояния страницы товара
-   */
   resetProductPage() {
     this.currentProduct = null;
     this.similarProducts = [];
     this.productError = null;
   }
-
-  // ========== SETTERS ========== //
 
   setLoading(loading: boolean) {
     this.loading = loading;
@@ -227,37 +185,17 @@ export class ProductsStore {
   setPage(page: number) {
     this.pagination.page = page;
   }
-
-  // ========== COMPUTED PROPERTIES ========== //
-
-  /**
-   * Есть ли результаты поиска
-   */
   get hasSearchResults(): boolean {
     return this.searchQuery.trim() !== '' && this.products.length > 0;
   }
-
-  /**
-   * Общее количество товаров с учетом поиска
-   */
   get displayedTotal(): number {
     return this.pagination.total;
   }
-
-  /**
-   * Текущий диапазон отображаемых товаров
-   */
   get currentRange(): { start: number; end: number } {
     const start = (this.pagination.page - 1) * this.pagination.pageSize + 1;
     const end = Math.min(this.pagination.page * this.pagination.pageSize, this.pagination.total);
     return { start, end };
   }
-
-  // ========== RESET METHODS ========== //
-
-  /**
-   * Сброс всего состояния
-   */
   reset() {
     this.products = [];
     this.currentProduct = null;
@@ -274,10 +212,6 @@ export class ProductsStore {
     };
     this.searchQuery = '';
   }
-
-  /**
-   * Сброс только состояния поиска и пагинации
-   */
   resetSearch() {
     this.searchQuery = '';
     this.pagination.page = 1;

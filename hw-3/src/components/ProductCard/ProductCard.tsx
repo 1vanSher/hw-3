@@ -42,12 +42,12 @@ export const ProductCard = observer(({ product }: ProductCardProps) => {
     <Card
       image={imageUrl}
       onImageError={handleImageError}
-      onImageClick={handleImageClick} // Добавляем обработчик клика на изображение
-      onTitleClick={handleTitleClick} // Добавляем обработчик клика на заголовок
+      onImageClick={handleImageClick} 
+      onTitleClick={handleTitleClick} 
       captionSlot={
         product.productCategory && (
           <Text view="p-14" color="secondary" weight="medium">
-            {product.productCategory.title}
+            {product.productCategory.name}
           </Text>
         )
       }

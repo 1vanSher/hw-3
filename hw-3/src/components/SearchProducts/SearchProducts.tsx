@@ -24,7 +24,6 @@ export const SearchProducts: React.FC<SearchProductsProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState(initialValue);
 
-  // Синхронизация с внешним initialValue
   useEffect(() => {
     setSearchQuery(initialValue);
   }, [initialValue]);

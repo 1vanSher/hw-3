@@ -58,15 +58,12 @@ export const ProductPage = observer(() => {
 
   return (
     <div className={styles.container}>
-      {/* Кнопка назад */}
       <div className={styles.backSection}>
         <Link to="/products" className={styles.backLink}>
           <ArrowLeft />
           <Text view="p-16">Назад к товарам</Text>
         </Link>
       </div>
-
-      {/* Основная информация о товаре */}
       <div className={styles.productSection}>
         <div className={styles.imageContainer}>
           <img
@@ -80,24 +77,17 @@ export const ProductPage = observer(() => {
         </div>
         
         <div className={styles.infoContainer}>
-          {/* Категория */}
           {product.productCategory && (
             <Text view="p-14" color="primary" weight="medium" className={styles.category}>
-              {product.productCategory.title}
+              {product.productCategory.name}
             </Text>
           )}
-          
-          {/* Заголовок */}
           <Text tag="h1" view="title" className={styles.title}>
             {product.title}
           </Text>
-          
-          {/* Описание */}
           <Text view="p-16" color="secondary" className={styles.description}>
             {product.description}
           </Text>
-          
-          {/* Цена и кнопка корзины */}
           <div className={styles.priceSection}>
             {discountedPrice ? (
               <>
@@ -120,8 +110,6 @@ export const ProductPage = observer(() => {
                 {product.price} ₽
               </Text>
             )}
-            
-            {/* Кнопка добавления в корзину */}
             <button 
               onClick={handleAddToCart}
               className={`${styles.addToCartButton} ${
@@ -132,8 +120,6 @@ export const ProductPage = observer(() => {
               {cartStore.isInCart(product.documentId) ? 'В корзине' : 'В корзину'}
             </button>
           </div>
-          
-          {/* Дополнительная информация */}
           <div className={styles.metaInfo}>
             <Text view="p-14" color="secondary">
               Рейтинг: ★ {product.rating}
@@ -147,8 +133,6 @@ export const ProductPage = observer(() => {
           </div>
         </div>
       </div>
-
-      {/* Похожие товары */}
       {similarProducts.length > 0 && (
         <div className={styles.similarSection}>
           <Text tag="h2" view="title" className={styles.similarTitle}>

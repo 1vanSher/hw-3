@@ -1,65 +1,63 @@
+'use client';
+
 import { observer } from 'mobx-react-lite';
-import { useEffect, useState } from 'react';
 import { ProductCard } from '@/components/ProductCard';
 import { Pagination } from '@/components/Pagination';
 import { SearchProducts } from '@/components/SearchProducts';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { Text } from '@/components/Text';
 import { useStore } from '@/stores/StoreContext';
+import { useEffect } from 'react';
+import { useProductFilters } from '@/hooks/useProductFilters';
 import styles from './ProductsPage.module.scss';
-
 
 export const ProductsPage = observer(() => {
   const { productsStore } = useStore();
-  const { products, loading, pagination, searchQuery } = productsStore;
+  const { products, loading, error, pagination } = productsStore;
   
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
-
-  // Единый эффект для загрузки продуктов при изменении фильтров
+  const {
+    searchQuery,
+    selectedCategories,
+    currentPage,
+    handleSearch,
+    handleCategoryChange,
+    handlePageChange,
+    handleClearAll,
+    hasActiveFilters
+  } = useProductFilters();
   useEffect(() => {
-    productsStore.fetchProductsC(1, searchQuery, selectedCategoryIds);
-  }, [searchQuery, selectedCategoryIds]);
+    productsStore.fetchProductsC(currentPage, searchQuery, selectedCategories);
+  }, [currentPage, searchQuery, selectedCategories]);
 
-  const handlePageChange = (newPage: number) => {
-    productsStore.fetchProductsC(newPage, searchQuery, selectedCategoryIds);
+  const onPageChange = (newPage: number) => {
+    handlePageChange(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Поиск - сбрасываем фильтр категорий
-  const handleSearch = (query: string) => {
-    setSelectedCategoryIds([]); // Сбрасываем категории
-    productsStore.setSearchQuery(query); // Устанавливаем поисковый запрос
-    // Продукты загрузятся автоматически благодаря useEffect
-  };
+  if (loading && products.length === 0) {
+    return (
+      <div className={styles.loading}>
+        <Text view="p-20">Загрузка товаров...</Text>
+      </div>
+    );
+  }
 
-  // Фильтрация по категориям - сбрасываем поиск
-  const handleFilterChange = (categoryIds: string[]) => {
-    productsStore.setSearchQuery(''); // Сбрасываем поиск
-    setSelectedCategoryIds(categoryIds);
-    // Продукты загрузятся автоматически благодаря useEffect
-  };
-
-  // Очистка поиска - сбрасываем и категории
-  const handleClearSearch = () => {
-    productsStore.setSearchQuery('');
-    setSelectedCategoryIds([]);
-  };
-
-  // Очистка фильтра категорий - сбрасываем и поиск
-  const handleClearFilter = () => {
-    setSelectedCategoryIds([]);
-    productsStore.setSearchQuery('');
-  };
-
-  // Общая очистка всех фильтров
-  const handleClearAll = () => {
-    productsStore.setSearchQuery('');
-    setSelectedCategoryIds([]);
-  };
+  if (error) {
+    return (
+      <div className={styles.error}>
+        <Text view="p-20" color="accent">{error}</Text>
+        <button 
+          onClick={() => productsStore.fetchProductsC(currentPage, searchQuery, selectedCategories)}
+          className={styles.retryButton}
+        >
+          Попробовать снова
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
-      {/* Заголовок страницы */}
       <div className={styles.header}>
         <Text view="title" tag="h1">Products</Text>
         <Text view="p-16" color="secondary" maxLines={2}>
@@ -67,8 +65,6 @@ export const ProductsPage = observer(() => {
           to see our old products please enter the name of the item
         </Text>
       </div>
-
-      {/* Поиск товаров */}
       <div className={styles.searchSection}>
         <SearchProducts 
           onSearch={handleSearch}
@@ -77,57 +73,37 @@ export const ProductsPage = observer(() => {
           initialValue={searchQuery}
         />
         
-        {/* Кнопка очистки если есть активные фильтры */}
-        {(searchQuery || selectedCategoryIds.length > 0) && (
-          <button 
-            onClick={handleClearAll}
-            className={styles.clearAllButton}
-          >
+        {hasActiveFilters && (
+          <button onClick={handleClearAll} className={styles.clearAllButton}>
             × Очистить все фильтры
           </button>
         )}
       </div>
-
-      {/* Фильтр по категориям */}
       <div className={styles.filterSection}>
         <CategoryFilter 
-          onFilterChange={handleFilterChange}
+          onFilterChange={handleCategoryChange}
           disabled={loading}
         />
       </div>
-
-      {/* Информация о активных фильтрах */}
-      {(searchQuery || selectedCategoryIds.length > 0) && (
+      {hasActiveFilters && (
         <div className={styles.activeFilters}>
           <Text view="p-14" color="secondary">
             Активные фильтры:
-            {searchQuery && (
-              <span className={styles.filterTag}>
-                Поиск: "{searchQuery}"
-                <button onClick={handleClearSearch}>×</button>
-              </span>
-            )}
-            {selectedCategoryIds.length > 0 && (
-              <span className={styles.filterTag}>
-                Категории: {selectedCategoryIds.length}
-                <button onClick={handleClearFilter}>×</button>
-              </span>
+            {searchQuery && <span className={styles.filterTag}>Поиск: "{searchQuery}"</span>}
+            {selectedCategories.length > 0 && (
+              <span className={styles.filterTag}>Категории: {selectedCategories.length}</span>
             )}
           </Text>
         </div>
       )}
-
-      {/* Общее количество товаров */}
       <div className={styles.productsTotal}>
         <Text>
           {searchQuery ? 'Found products' : 'Total products'} 
           <span className={styles.totalCount}> {pagination.total}</span>
           {searchQuery && ` for "${searchQuery}"`}
-          {selectedCategoryIds.length > 0 && ` in selected categories`}
+          {selectedCategories.length > 0 && ` in selected categories`}
         </Text>
       </div>
-
-      {/* Сетка товаров */}
       <div className={styles.productsGrid}>
         {products.length > 0 ? (
           products.map((product) => (
@@ -136,16 +112,16 @@ export const ProductsPage = observer(() => {
         ) : (
           <div className={styles.noResults}>
             <Text view="p-18" color="secondary">
-              {searchQuery && selectedCategoryIds.length > 0
+              {searchQuery && selectedCategories.length > 0
                 ? `No products found for "${searchQuery}" in selected categories`
                 : searchQuery
                 ? `No products found for "${searchQuery}"`
-                : selectedCategoryIds.length > 0
+                : selectedCategories.length > 0
                 ? 'No products found in selected categories'
                 : 'No products available'
               }
             </Text>
-            {(searchQuery || selectedCategoryIds.length > 0) && (
+            {hasActiveFilters && (
               <button onClick={handleClearAll} className={styles.clearSearchButton}>
                 Show all products
               </button>
@@ -153,13 +129,12 @@ export const ProductsPage = observer(() => {
           </div>
         )}
       </div>
-
-      {/* Пагинация */}
       {pagination.pageCount > 1 && (
         <div className={styles.paginationContainer}>
           <Pagination 
             pagination={pagination}
-            onPageChange={handlePageChange}
+            onPageChange={onPageChange}
+            currentPage={currentPage}
           />
         </div>
       )}

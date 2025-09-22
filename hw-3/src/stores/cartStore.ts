@@ -79,13 +79,11 @@ export class CartStore {
     }
   }
 
-  // Очистка корзины
   clearCart() {
     this.items = [];
     this.saveToLocalStorage();
   }
 
-  // Открытие/закрытие корзины
   toggleCart() {
     this.isOpen = !this.isOpen;
   }
@@ -98,17 +96,14 @@ export class CartStore {
     this.isOpen = false;
   }
 
-  // Вычисляемое свойство: общая стоимость
   get total() {
     return this.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }
 
-  // Вычисляемое свойство: общее количество товаров
   get totalItems() {
     return this.items.reduce((sum, item) => sum + item.quantity, 0);
   }
 
-  // Проверка, есть ли товар в корзине
   isInCart(id: string): boolean {
     return this.items.some(item => item.id === id);
   }

@@ -1,4 +1,3 @@
-// stores/CategoryFilterStore.ts
 import { makeAutoObservable } from 'mobx';
 import { ProductCategory } from '@/types/product';
 import { productsApi } from '@/api/productsApi';
@@ -14,7 +13,7 @@ export interface CategoryFilterState {
 export class CategoryFilterStore {
   state: CategoryFilterState = {
     selectedCategoryIds: [],
-    categories: [], // Начинаем с пустого массива вместо null
+    categories: [], 
     isLoading: false
   };
 
@@ -22,14 +21,10 @@ export class CategoryFilterStore {
     makeAutoObservable(this);
   }
 
-  // Загрузка категорий из продуктов (если отдельный endpoint не работает)
   loadCategoriesFromProducts = async (): Promise<void> => {
     this.state.isLoading = true;
     try {
-      // Получаем первую страницу продуктов чтобы извлечь категории
-      const response = await productsApi.getProductsPaginated(1, 100); // Больше продуктов для сбора категорий
-      
-      // Извлекаем уникальные категории из продуктов
+      const response = await productsApi.getProductsPaginated(1, 100);       
       const categoriesMap = new Map();
       
       response.data.forEach((product: Product ) => {
@@ -50,11 +45,9 @@ export class CategoryFilterStore {
     }
   };
 
-  // Или попробовать альтернативный endpoint
   loadCategoriesAlternative = async (): Promise<void> => {
     this.state.isLoading = true;
     try {
-      // Попробовать другой endpoint если основной возвращает null
       const response = await productsApi.getCategories();
       
       if (response.data === null) {
@@ -67,7 +60,7 @@ export class CategoryFilterStore {
       
     } catch (error) {
       console.error('Failed to load categories:', error);
-      await this.loadCategoriesFromProducts(); // Fallback
+      await this.loadCategoriesFromProducts();
     } finally {
       this.state.isLoading = false;
     }
@@ -83,7 +76,7 @@ export class CategoryFilterStore {
 
   get categoryOptions(): Option[] {
     return this.state.categories.map(category => ({
-      key: category.id.toString(), // Преобразуем ID в строку
+      key: category.id.toString(), 
       value: category.name || category.name || 'Unnamed Category'
     }));
   }

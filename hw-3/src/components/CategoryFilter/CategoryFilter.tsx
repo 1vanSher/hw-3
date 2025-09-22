@@ -10,7 +10,6 @@ interface CategoryFilterProps {
   disabled?: boolean;
 }
 
-// components/CategoryFilter.tsx
 export const CategoryFilter: React.FC<CategoryFilterProps> = observer(({ 
   onFilterChange,
   disabled = false
@@ -18,8 +17,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = observer(({
   const { categoryFilterStore } = useStore();
 
   useEffect(() => {
-    // Загружаем категории при монтировании
-    categoryFilterStore.loadCategoriesAlternative();
+        categoryFilterStore.loadCategoriesAlternative();
   }, []);
 
   const handleCategoryChange = (selectedOptions: Option[]) => {

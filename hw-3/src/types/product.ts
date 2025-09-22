@@ -21,7 +21,7 @@ export interface ProductImage {
 export interface ProductCategory {
   id: string;
   documentId: string;
-  name: string; // ← должно быть name, а не title
+  name: string; 
   slug: string;
 }
 
@@ -68,4 +68,11 @@ export interface PaginationProps {
   pagination: Pagination;
   onPageChange: (page: number) => void;
   className?: string;
+}
+
+export interface PaginationInfo {
+  page: number;          
+  pageSize: number;      
+  pageCount: number;      
+  total: number;       
 }

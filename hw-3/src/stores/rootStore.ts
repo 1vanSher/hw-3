@@ -1,17 +1,17 @@
 // stores/rootStore.ts
 import { ProductsStore } from './productsStore';
 import { CartStore } from './cartStore';
-import { CategoryFilterStore } from './CategoryFilterStore'; // Добавляем импорт
+import { CategoryFilterStore } from './CategoryFilterStore';
 
 export class RootStore {
   productsStore: ProductsStore;
   cartStore: CartStore;
-  categoryFilterStore: CategoryFilterStore; // Добавляем хранилище категорий
+  categoryFilterStore: CategoryFilterStore; 
 
   constructor() {
     this.productsStore = new ProductsStore();
     this.cartStore = new CartStore();
-    this.categoryFilterStore = new CategoryFilterStore(); // Инициализируем
+    this.categoryFilterStore = new CategoryFilterStore();
   }
 }
 
