@@ -166,6 +166,33 @@ export class ProductsStore {
     }
   }
 
+
+  fetchProductsC = async (page: number = 1, searchQuery: string = '', categoryIds: string[] = []) => {
+  this.loading = true;
+  try {
+    let response;
+    
+    if (categoryIds.length > 0) {
+      // Фильтрация по категориям
+      response = await productsApi.getProductsByCategoryIds(categoryIds, page, 9);
+    } else if (searchQuery) {
+      // Поиск
+      response = await productsApi.searchProducts(searchQuery, page, 9);
+    } else {
+      // Все товары
+      response = await productsApi.getProductsPaginated(page, 9);
+    }
+    
+    this.products = response.data;
+    this.pagination = response.meta.pagination;
+    this.searchQuery = searchQuery;
+  } catch {
+    this.error = 'Failed to load products';
+  } finally {
+    this.loading = false;
+  }
+};
+
   /**
    * Сброс состояния страницы товара
    */

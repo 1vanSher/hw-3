@@ -1,3 +1,30 @@
+// types/product.ts
+export interface ProductImage {
+  id: string;
+  documentId: string;
+  name: string;
+  alternativeText: string;
+  caption: string;
+  width: number;
+  height: number;
+  formats: string;
+  hash: string;
+  ext: string;
+  mime: string;
+  size: number;
+  url: string;
+  previewUrl: string;
+  provider: string;
+  provider_metadata: string;
+}
+
+export interface ProductCategory {
+  id: string;
+  documentId: string;
+  name: string; // ← должно быть name, а не title
+  slug: string;
+}
+
 export interface Product {
   id: string;
   documentId: string;
@@ -11,18 +38,7 @@ export interface Product {
   productCategory: ProductCategory;
 }
 
-export interface ProductImage {
-  id: string;
-  url: string;
-  alternativeText?: string;
-}
-
-export interface ProductCategory {
-  id: string;
-  title: string;
-}
-
-export interface Pagination {
+export interface PaginationType {
   page: number;
   pageSize: number;
   pageCount: number;
@@ -32,8 +48,15 @@ export interface Pagination {
 export interface ProductsResponse {
   data: Product[];
   meta: {
-    pagination: Pagination;
+    pagination: PaginationType;
   };
+}
+
+export interface Pagination {
+  page: number;
+  pageSize: number;
+  pageCount: number;
+  total: number;
 }
 
 export interface ProductCardProps {

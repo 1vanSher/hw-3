@@ -1,57 +1,61 @@
 import { observer } from 'mobx-react-lite';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ProductCard } from '@/components/ProductCard';
 import { Pagination } from '@/components/Pagination';
 import { SearchProducts } from '@/components/SearchProducts';
+import { CategoryFilter } from '@/components/CategoryFilter';
 import { Text } from '@/components/Text';
 import { useStore } from '@/stores/StoreContext';
 import styles from './ProductsPage.module.scss';
 
+
 export const ProductsPage = observer(() => {
   const { productsStore } = useStore();
-  const { products, loading, error, pagination, searchQuery } = productsStore;
+  const { products, loading, pagination, searchQuery } = productsStore;
+  
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
 
-  // Загрузка продуктов при монтировании компонента
+  // Единый эффект для загрузки продуктов при изменении фильтров
   useEffect(() => {
-    productsStore.fetchProducts(1);
-  }, []);
+    productsStore.fetchProductsC(1, searchQuery, selectedCategoryIds);
+  }, [searchQuery, selectedCategoryIds]);
 
   const handlePageChange = (newPage: number) => {
-    productsStore.fetchProducts(newPage, searchQuery);
+    productsStore.fetchProductsC(newPage, searchQuery, selectedCategoryIds);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Поиск - сбрасываем фильтр категорий
   const handleSearch = (query: string) => {
-    productsStore.fetchProducts(1, query);
+    setSelectedCategoryIds([]); // Сбрасываем категории
+    productsStore.setSearchQuery(query); // Устанавливаем поисковый запрос
+    // Продукты загрузятся автоматически благодаря useEffect
   };
 
+  // Фильтрация по категориям - сбрасываем поиск
+  const handleFilterChange = (categoryIds: string[]) => {
+    productsStore.setSearchQuery(''); // Сбрасываем поиск
+    setSelectedCategoryIds(categoryIds);
+    // Продукты загрузятся автоматически благодаря useEffect
+  };
+
+  // Очистка поиска - сбрасываем и категории
   const handleClearSearch = () => {
-    productsStore.clearSearch();
+    productsStore.setSearchQuery('');
+    setSelectedCategoryIds([]);
   };
 
-  // Состояние загрузки
-  if (loading && products.length === 0) {
-    return (
-      <div className={styles.loading}>
-        <Text view="p-20">Загрузка товаров...</Text>
-      </div>
-    );
-  }
+  // Очистка фильтра категорий - сбрасываем и поиск
+  const handleClearFilter = () => {
+    setSelectedCategoryIds([]);
+    productsStore.setSearchQuery('');
+  };
 
-  // Состояние ошибки
-  if (error) {
-    return (
-      <div className={styles.error}>
-        <Text view="p-20" color="accent">{error}</Text>
-        <button 
-          onClick={() => productsStore.fetchProducts(1, searchQuery)}
-          className={styles.retryButton}
-        >
-          Попробовать снова
-        </button>
-      </div>
-    );
-  }
+  // Общая очистка всех фильтров
+  const handleClearAll = () => {
+    productsStore.setSearchQuery('');
+    setSelectedCategoryIds([]);
+  };
 
   return (
     <div className={styles.container}>
@@ -72,15 +76,46 @@ export const ProductsPage = observer(() => {
           buttonText="Find now"
           initialValue={searchQuery}
         />
-        {searchQuery && (
+        
+        {/* Кнопка очистки если есть активные фильтры */}
+        {(searchQuery || selectedCategoryIds.length > 0) && (
           <button 
-            onClick={handleClearSearch}
-            className={styles.clearSearchButton}
+            onClick={handleClearAll}
+            className={styles.clearAllButton}
           >
-            Clear search
+            × Очистить все фильтры
           </button>
         )}
       </div>
+
+      {/* Фильтр по категориям */}
+      <div className={styles.filterSection}>
+        <CategoryFilter 
+          onFilterChange={handleFilterChange}
+          disabled={loading}
+        />
+      </div>
+
+      {/* Информация о активных фильтрах */}
+      {(searchQuery || selectedCategoryIds.length > 0) && (
+        <div className={styles.activeFilters}>
+          <Text view="p-14" color="secondary">
+            Активные фильтры:
+            {searchQuery && (
+              <span className={styles.filterTag}>
+                Поиск: "{searchQuery}"
+                <button onClick={handleClearSearch}>×</button>
+              </span>
+            )}
+            {selectedCategoryIds.length > 0 && (
+              <span className={styles.filterTag}>
+                Категории: {selectedCategoryIds.length}
+                <button onClick={handleClearFilter}>×</button>
+              </span>
+            )}
+          </Text>
+        </div>
+      )}
 
       {/* Общее количество товаров */}
       <div className={styles.productsTotal}>
@@ -88,6 +123,7 @@ export const ProductsPage = observer(() => {
           {searchQuery ? 'Found products' : 'Total products'} 
           <span className={styles.totalCount}> {pagination.total}</span>
           {searchQuery && ` for "${searchQuery}"`}
+          {selectedCategoryIds.length > 0 && ` in selected categories`}
         </Text>
       </div>
 
@@ -95,21 +131,22 @@ export const ProductsPage = observer(() => {
       <div className={styles.productsGrid}>
         {products.length > 0 ? (
           products.map((product) => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-            />
+            <ProductCard key={product.id} product={product} />
           ))
         ) : (
           <div className={styles.noResults}>
             <Text view="p-18" color="secondary">
-              {searchQuery ? `No products found for "${searchQuery}"` : 'No products available'}
+              {searchQuery && selectedCategoryIds.length > 0
+                ? `No products found for "${searchQuery}" in selected categories`
+                : searchQuery
+                ? `No products found for "${searchQuery}"`
+                : selectedCategoryIds.length > 0
+                ? 'No products found in selected categories'
+                : 'No products available'
+              }
             </Text>
-            {searchQuery && (
-              <button 
-                onClick={handleClearSearch}
-                className={styles.clearSearchButton}
-              >
+            {(searchQuery || selectedCategoryIds.length > 0) && (
+              <button onClick={handleClearAll} className={styles.clearSearchButton}>
                 Show all products
               </button>
             )}

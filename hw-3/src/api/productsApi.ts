@@ -1,5 +1,6 @@
 import qs from 'qs';
 import { Product, ProductsResponse, Pagination as PaginationType } from '@/types/product';
+import { ProductCategory } from '@/types/category';
 
 const API_BASE_URL = 'https://front-school-strapi.ktsdev.ru/api';
 
@@ -54,6 +55,41 @@ export const productsApi = {
     }, { encodeValuesOnly: true });
 
     const response = await fetch(`${API_BASE_URL}/products?${searchQuery}`);
+    return response.json();
+  },
+
+  // Получить все категории
+  getCategories: async (): Promise<{ data: ProductCategory[] }> => {
+    const query = qs.stringify({
+      fields: ['id', 'name', 'slug']
+    }, { encodeValuesOnly: true });
+
+    const response = await fetch(`${API_BASE_URL}/product-categories?${query}`);
+    return response.json();
+  },
+
+  // Фильтрация товаров по массиву ID категорий
+  getProductsByCategoryIds: async (
+    categoryIds: string[], 
+    page: number = 1, 
+    pageSize: number = 9
+  ): Promise<{ data: Product[]; meta: { pagination: PaginationType } }> => {
+    const query = qs.stringify({
+      populate: ['images', 'productCategory'],
+      filters: {
+        productCategory: {
+          id: {
+            $in: categoryIds // Фильтрация по массиву ID
+          }
+        }
+      },
+      pagination: {
+        page,
+        pageSize,
+      },
+    }, { encodeValuesOnly: true });
+
+    const response = await fetch(`${API_BASE_URL}/products?${query}`);
     return response.json();
   },
 };
