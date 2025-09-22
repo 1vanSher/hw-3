@@ -81,7 +81,6 @@
 
 .priceSection {
   display: flex;
-  flex-direction: column;
   gap: $spacing-3;
   margin: $spacing-4 0;
 }
@@ -134,6 +133,25 @@
   grid-template-columns: repeat(auto-fit, minmax(348px, 1fr));
   gap: $spacing-6;
   justify-content: center;
+}
+.addToCartButton{
+  background-color: $color-primary;
+  color: $color-white;
+  border: none;
+  padding: $spacing-3 $spacing-6;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: $color-primary-hover;
+  }
+
+  &:disabled {
+    background-color: $color-gray-400;
+    cursor: not-allowed;
+  }
 }
 
 

@@ -1,83 +1,67 @@
-// Базовый интерфейс для всех сущностей Strapi
-interface StrapiEntity {
-  id: number;
+// types/product.ts
+export interface ProductImage {
+  id: string;
   documentId: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-}
-
-// Интерфейс для форматов изображения
-export interface ImageFormat {
-  ext: string;
-  url: string;
-  hash: string;
-  mime: string;
   name: string;
-  size: number;
+  alternativeText: string;
+  caption: string;
   width: number;
   height: number;
-  sizeInBytes: number;
-}
-
-// Интерфейс для изображения
-export interface Image extends StrapiEntity {
-  name: string;
-  alternativeText: string | null;
-  caption: string | null;
-  width: number;
-  height: number;
-  formats: {
-    large: ImageFormat;
-    small: ImageFormat;
-    medium: ImageFormat;
-    thumbnail: ImageFormat;
-  };
+  formats: string;
   hash: string;
   ext: string;
   mime: string;
   size: number;
   url: string;
-  previewUrl: string | null;
+  previewUrl: string;
   provider: string;
+  provider_metadata: string;
 }
 
-// Интерфейс для категории
-export interface Category extends StrapiEntity {
-  title: string;
+export interface ProductCategory {
+  id: string;
+  documentId: string;
+  name: string; 
+  slug: string;
 }
 
-// Основной интерфейс для товара
-export interface Product extends StrapiEntity {
+export interface Product {
+  id: string;
+  documentId: string;
   title: string;
   description: string;
   price: number;
   discountPercent: number;
   rating: number;
   isInStock: boolean;
-  images: Image[];
-  productCategory: Category;
+  images: ProductImage[];
+  productCategory: ProductCategory;
 }
 
-// Интерфейс для ответа API с пагинацией
+export interface PaginationType {
+  page: number;
+  pageSize: number;
+  pageCount: number;
+  total: number;
+}
+
 export interface ProductsResponse {
   data: Product[];
   meta: {
-    pagination: {
-      page: number;
-      pageSize: number;
-      pageCount: number;
-      total: number;
-    };
+    pagination: PaginationType;
   };
 }
 
-// Интерфейс для пропсов пагинации
 export interface Pagination {
   page: number;
   pageSize: number;
   pageCount: number;
   total: number;
+}
+
+export interface ProductCardProps {
+  product: Product;
+  className?: string;
 }
 
 export interface PaginationProps {
@@ -86,13 +70,9 @@ export interface PaginationProps {
   className?: string;
 }
 
-// Утилитарные типы для компонентов
-export type ProductCardProps = {
-  product: Product;
-};
-
-export type ProductsPageProps = {
-  products?: Product[];
-  loading?: boolean;
-  error?: string | null;
-};
+export interface PaginationInfo {
+  page: number;          
+  pageSize: number;      
+  pageCount: number;      
+  total: number;       
+}

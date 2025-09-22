@@ -21,6 +21,10 @@ export type CardProps = {
   actionSlot?: React.ReactNode;
   /** Обработчик ошибки загрузки изображения */
   onImageError?: () => void;
+  /** Обработчик клика по изображению */
+  onImageClick?: () => void;
+  /** Обработчик клика по заголовку */
+  onTitleClick?: () => void;
 };
 
 export const Card: React.FC<CardProps> = ({
@@ -32,10 +36,23 @@ export const Card: React.FC<CardProps> = ({
   contentSlot,
   actionSlot,
   onClick,
+  onImageError,
+  onImageClick,
+  onTitleClick,
   ...rest
 }) => {
-  const handleClick = (e: React.MouseEvent) => {
+  const handleCardClick = (e: React.MouseEvent) => {
     onClick?.(e);
+  };
+
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onImageClick?.();
+  };
+
+  const handleTitleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onTitleClick?.();
   };
 
   const cardClassName = `${styles.card} ${onClick ? styles.card_clickable : ''} ${className}`;
@@ -43,11 +60,17 @@ export const Card: React.FC<CardProps> = ({
   return (
     <div
       className={cardClassName}
-      onClick={handleClick}
+      onClick={handleCardClick}
       {...rest}
     >
       <div className={styles.card__image_container}>
-        <img src={image} alt="" className={styles.card__image} />
+        <img 
+          src={image} 
+          alt="" 
+          className={`${styles.card__image} ${onImageClick ? styles.card__image_clickable : ''}`}
+          onError={onImageError}
+          onClick={handleImageClick}
+        />
       </div>
       
       <div className={styles.card__content}>
@@ -57,11 +80,12 @@ export const Card: React.FC<CardProps> = ({
           </div>
         )}
         
-        <div className={styles.card__text}>
+        <div className={styles.card__text} onClick={handleTitleClick}>
           <Text 
             tag="h3" 
             view="p-16" 
-            weight="bold" 
+            weight="bold"
+            className={onTitleClick ? styles.card__title_clickable : ''}
           >
             {title}
           </Text>

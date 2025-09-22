@@ -1,64 +1,37 @@
-import { useState, useEffect } from 'react';
+'use client';
+
+import { observer } from 'mobx-react-lite';
 import { ProductCard } from '@/components/ProductCard';
 import { Pagination } from '@/components/Pagination';
 import { SearchProducts } from '@/components/SearchProducts';
-import { productsApi } from '@/api/productsApi';
-import { Product, Pagination as PaginationType } from '@/types/product';
+import { CategoryFilter } from '@/components/CategoryFilter';
 import { Text } from '@/components/Text';
+import { useStore } from '@/stores/StoreContext';
+import { useEffect } from 'react';
+import { useProductFilters } from '@/hooks/useProductFilters';
 import styles from './ProductsPage.module.scss';
 
-export const ProductsPage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState<PaginationType>({
-    page: 1,
-    pageSize: 9,
-    pageCount: 1,
-    total: 0
-  });
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const fetchProducts = async (page: number = 1, query: string = '') => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      let response;
-      
-      if (query.trim()) {
-        response = await productsApi.searchProducts(query.trim(), page, pagination.pageSize);
-      } else {
-        response = await productsApi.getProductsPaginated(page, pagination.pageSize);
-      }
-      
-      setProducts(response.data);
-      setPagination(response.meta.pagination);
-    } catch (err) {
-      setError('Ошибка при загрузке товаров');
-      console.error('Error fetching products:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+export const ProductsPage = observer(() => {
+  const { productsStore } = useStore();
+  const { products, loading, error, pagination } = productsStore;
+  
+  const {
+    searchQuery,
+    selectedCategories,
+    currentPage,
+    handleSearch,
+    handleCategoryChange,
+    handlePageChange,
+    handleClearAll,
+    hasActiveFilters
+  } = useProductFilters();
   useEffect(() => {
-    fetchProducts(1);
-  }, []);
+    productsStore.fetchProductsC(currentPage, searchQuery, selectedCategories);
+  }, [currentPage, searchQuery, selectedCategories]);
 
-  const handlePageChange = (newPage: number) => {
-    fetchProducts(newPage, searchQuery);
+  const onPageChange = (newPage: number) => {
+    handlePageChange(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    fetchProducts(1, query);
-  };
-
-  const handleClearSearch = () => {
-    setSearchQuery('');
-    fetchProducts(1);
   };
 
   if (loading && products.length === 0) {
@@ -74,7 +47,7 @@ export const ProductsPage = () => {
       <div className={styles.error}>
         <Text view="p-20" color="accent">{error}</Text>
         <button 
-          onClick={() => fetchProducts(1, searchQuery)}
+          onClick={() => productsStore.fetchProductsC(currentPage, searchQuery, selectedCategories)}
           className={styles.retryButton}
         >
           Попробовать снова
@@ -97,41 +70,59 @@ export const ProductsPage = () => {
           onSearch={handleSearch}
           placeholder="Search product"
           buttonText="Find now"
+          initialValue={searchQuery}
         />
-        {searchQuery && (
-          <button 
-            onClick={handleClearSearch}
-            className={styles.clearSearchButton}
-          >
-            Clear search
+        
+        {hasActiveFilters && (
+          <button onClick={handleClearAll} className={styles.clearAllButton}>
+            × Очистить все фильтры
           </button>
         )}
       </div>
+      <div className={styles.filterSection}>
+        <CategoryFilter 
+          onFilterChange={handleCategoryChange}
+          disabled={loading}
+        />
+      </div>
+      {hasActiveFilters && (
+        <div className={styles.activeFilters}>
+          <Text view="p-14" color="secondary">
+            Активные фильтры:
+            {searchQuery && <span className={styles.filterTag}>Поиск: "{searchQuery}"</span>}
+            {selectedCategories.length > 0 && (
+              <span className={styles.filterTag}>Категории: {selectedCategories.length}</span>
+            )}
+          </Text>
+        </div>
+      )}
       <div className={styles.productsTotal}>
-        <Text >
+        <Text>
           {searchQuery ? 'Found products' : 'Total products'} 
           <span className={styles.totalCount}> {pagination.total}</span>
           {searchQuery && ` for "${searchQuery}"`}
+          {selectedCategories.length > 0 && ` in selected categories`}
         </Text>
       </div>
       <div className={styles.productsGrid}>
         {products.length > 0 ? (
           products.map((product) => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-            />
+            <ProductCard key={product.id} product={product} />
           ))
         ) : (
           <div className={styles.noResults}>
             <Text view="p-18" color="secondary">
-              {searchQuery ? `No products found for "${searchQuery}"` : 'No products available'}
+              {searchQuery && selectedCategories.length > 0
+                ? `No products found for "${searchQuery}" in selected categories`
+                : searchQuery
+                ? `No products found for "${searchQuery}"`
+                : selectedCategories.length > 0
+                ? 'No products found in selected categories'
+                : 'No products available'
+              }
             </Text>
-            {searchQuery && (
-              <button 
-                onClick={handleClearSearch}
-                className={styles.clearSearchButton}
-              >
+            {hasActiveFilters && (
+              <button onClick={handleClearAll} className={styles.clearSearchButton}>
                 Show all products
               </button>
             )}
@@ -142,12 +133,13 @@ export const ProductsPage = () => {
         <div className={styles.paginationContainer}>
           <Pagination 
             pagination={pagination}
-            onPageChange={handlePageChange}
+            onPageChange={onPageChange}
+            currentPage={currentPage}
           />
         </div>
       )}
     </div>
   );
-};
+});
 
 export default ProductsPage;
